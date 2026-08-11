@@ -1,0 +1,41 @@
+LINARES METHOD — AUDITORÍA Y CORRECCIÓN CONSOLIDADA V3.6
+
+ERRORES REPORTADOS Y CORREGIDOS
+1. CONTROL COMERCIAL podía decir "Sin vencimientos..." aun cuando Alumnos mostraba un vencido.
+   Causa: filtraba alumnos por a.fechaVencimientoServicio directo, mientras otras pantallas
+   usaban _normalizarMembresia. Ahora Control Comercial usa la misma fuente de verdad.
+2. PORTAL podía mostrar solamente "Pago registrado" y ocultar los medios de pago cuando
+   existía un pago histórico. Ahora, si el servicio está próximo a vencer o vencido,
+   los medios de pago se muestran aunque exista un pago anterior.
+3. Se conserva la regla: pagar NO modifica el vencimiento. Renovar sí.
+4. Se conserva transferencia sin recargo, Mercado Pago con costo informado y comprobante WhatsApp.
+5. Se conserva Portal HTTPS instalable e iconos corregidos.
+
+PRUEBA DE CASO REPORTADO
+- Fecha de servicio 08/08/2026, hoy 11/08/2026 => Vencido.
+- Un pago histórico marcado Pagado NO convierte el servicio en activo.
+- Control Comercial debe mostrar vencido/renovación pendiente.
+- Portal debe permitir pagar nuevamente y mostrar el último pago sólo como antecedente.
+
+CONTROL
+- fase_3_6: True
+- control_comercial_usa_membresia: True
+- control_comercial_detecta_tatiana_vencida_test: True
+- pago_historico_no_oculta_medios: True
+- transferencia_presente: True
+- mercado_pago_presente: True
+- comprobante_whatsapp_presente: True
+- vencimiento_no_se_escribe_en_bloque_pago: True
+- funciones_sensibles_mismo_conteo: True
+- portal_https_presente: True
+- service_worker_valido: True
+- manifest_portal_valido: True
+- iconos_principal_y_portal_presentes: True
+- before_counts: {'function registrarRenovacion(': 1, 'function registrarRenovacionGestion(': 1, 'function marcarPagoComoPagado(': 1, 'function _normalizarMembresia(': 1, 'function _estadoRenovacion(': 1, 'function abrirPortalAlumnoInicio': 1, 'function descargarPortalAlumnoHTML': 1, 'function compartirPortalAlumnoHTML': 1, 'function _construirHTMLPortalExportado': 1, 'function persist': 1, '_datosBackupCompletos': 11, 'mobile-pdf-definitive-v12': 1, 'Backup V4': 1, 'IDB photo architecture': 1}
+- after_counts: {'function registrarRenovacion(': 1, 'function registrarRenovacionGestion(': 1, 'function marcarPagoComoPagado(': 1, 'function _normalizarMembresia(': 1, 'function _estadoRenovacion(': 1, 'function abrirPortalAlumnoInicio': 1, 'function descargarPortalAlumnoHTML': 1, 'function compartirPortalAlumnoHTML': 1, 'function _construirHTMLPortalExportado': 1, 'function persist': 1, '_datosBackupCompletos': 11, 'mobile-pdf-definitive-v12': 1, 'Backup V4': 1, 'IDB photo architecture': 1}
+- html_balances: {'script': (8, 4), 'style': (47, 47), 'div': (2731, 2729), 'button': (416, 415)}
+- main_js_check_failures: []
+- portal_js_check_failures: []
+- sw_check_error: 
+- input_sha256: 0b3007cbc3ded95a0ff327791637e2d8e0d8f89c72a1327a96a7881f4db79c23
+- output_sha256: 64852af88f1304af85ce603818e357d7726bf3061fcac6f791fbbc811e7eebe0
