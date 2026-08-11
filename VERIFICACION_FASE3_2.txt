@@ -1,0 +1,67 @@
+LINARES METHOD — FASE 3.2: PAGOS PREMIUM DEL PORTAL
+
+BASE
+- index.html Fase 3 subido por el usuario.
+
+REGLA DE NEGOCIO PROTEGIDA
+- PAGAR NO MODIFICA fechaVencimientoServicio.
+- El vencimiento existente se respeta aunque el alumno pague antes, el mismo día o después.
+- Sólo una renovación explícita del entrenador puede cambiar el período/vencimiento.
+
+IMPLEMENTADO
+- Diseño premium del pago en Inicio del Portal.
+- La tarjeta gana protagonismo sólo si el servicio está próximo a vencer o vencido.
+- Estado visual: VENCE PRONTO / VENCIDO / AL DÍA.
+- Transferencia claramente identificada como SIN RECARGO.
+- Alias, CVU y titular.
+- Botones Copiar Alias / Copiar CVU.
+- Mercado Pago con Link público configurado.
+- Comisión editable, default 6,6%.
+- Si existe un pago pendiente con importe, se muestra:
+  · importe normal por transferencia;
+  · total a ingresar por Mercado Pago calculado para compensar la comisión.
+- SVG propios para tarjeta, banco, billetera y acción de pago.
+- Si el pago ya figura como Pagado en los datos, el Portal muestra "Pago registrado"
+  PERO conserva la misma fecha de vencimiento.
+- Las funciones nuevas viajan también al Portal HTML exportado.
+
+LÍMITE TÉCNICO ACTUAL
+- El Link de Pago abre Mercado Pago, pero el HTML estático NO recibe confirmación automática
+  de Mercado Pago. Por lo tanto esta fase NO inventa una confirmación de pago.
+- La sincronización automática real Mercado Pago → Linares Method requiere backend/webhook/API.
+- La visual del Portal sí refleja un pago cuando el registro de pago ya está marcado como Pagado
+  en los datos que recibe.
+
+CONTROL DE REGRESIÓN
+- fase1_preservada: True
+- fase2_preservada: True
+- fase3_preservada: True
+- fase3_2_presente: True
+- datos_cobro_configurados: True
+- comision_6_6_default: True
+- cvu_22_digitos: True
+- calculo_neto_mp: True
+- transferencia_sin_recargo: True
+- aviso_mp_costo: True
+- svg_no_emojis_acciones_pago: True
+- pago_no_escribe_vencimiento: True
+- conteos_sensibles_iguales: True
+- before_counts: {'function registrarRenovacion(': 1, 'function registrarRenovacionGestion(': 1, 'function _normalizarMembresia(': 1, 'function _estadoRenovacion(': 1, 'function marcarPagoComoPagado(': 1, 'function abrirPortalAlumnoInicio': 1, 'function descargarPortalAlumnoHTML': 1, 'function compartirPortalAlumnoHTML': 1, 'function _construirHTMLPortalExportado': 1, 'function persist': 1, '_datosBackupCompletos': 11, 'mobile-pdf-definitive-v12': 1, 'Backup V4': 1, 'IDB photo architecture': 1}
+- after_counts: {'function registrarRenovacion(': 1, 'function registrarRenovacionGestion(': 1, 'function _normalizarMembresia(': 1, 'function _estadoRenovacion(': 1, 'function marcarPagoComoPagado(': 1, 'function abrirPortalAlumnoInicio': 1, 'function descargarPortalAlumnoHTML': 1, 'function compartirPortalAlumnoHTML': 1, 'function _construirHTMLPortalExportado': 1, 'function persist': 1, '_datosBackupCompletos': 11, 'mobile-pdf-definitive-v12': 1, 'Backup V4': 1, 'IDB photo architecture': 1}
+- input_sha256: 8375bb500e9670d93eb30d697fdca07fe173f47a0bec7c8dd47c39ef241f3781
+- output_sha256: d91910db81d44f8dd6746737e369bdabf012fcab37c11610cac433ba64b3227a
+
+PRUEBA MANUAL
+1. Abrir Perfil Profesional y comprobar Alias, CVU, Titular, Link y 6,6%.
+2. Guardar.
+3. Elegir un alumno con vencimiento dentro de 7 días o vencido.
+4. Confirmar que aparece la tarjeta premium.
+5. Confirmar que Transferencia dice SIN RECARGO.
+6. Confirmar Copiar Alias y Copiar CVU.
+7. Si el alumno tiene un pago pendiente con importe, comprobar el importe normal y el total MP.
+8. Abrir Mercado Pago y verificar el link.
+9. Confirmar que pagar/marcar pago NO cambia fechaVencimientoServicio.
+10. Marcar el pago como Pagado desde gestión y reabrir el Portal: debe decir Pago registrado,
+    conservando la misma fecha de vencimiento.
+11. Descargar el Portal del alumno y repetir la revisión visual.
+12. Verificar Inicio, Entreno, Comidas, Suplementos, Aprendé, Evolución, PDF y Backup.
