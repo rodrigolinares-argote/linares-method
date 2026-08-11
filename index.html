@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!-- LM_PHASE: pwa-icon-v1-2026-08-10 -->
 <!-- LM_PHASE: portal-home-shortcut-v2-2026-08-10 -->
+<!-- LM_PHASE: portal-payments-v3-2026-08-10 -->
 <!-- LM_BUILD: adaptive-states-v30-2026-07-25
 
 <!-- Linares Method | Visual Rebuild V3 + IDB photo architecture | 2026-07-24 -->
@@ -423,6 +424,48 @@ body.lm-modal-open{
 .portal-aprende-card{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;cursor:pointer;transition:transform .12s, border-color .12s}
 .portal-aprende-card:active{transform:scale(.98)}
 .portal-aprende-card:hover{border-color:var(--accent-l)}
+
+
+/* ── FASE 3: PAGOS EN PORTAL DEL ALUMNO ─────────────────────────────── */
+.portal-pago-card{
+  background:linear-gradient(145deg,rgba(20,24,37,.98),rgba(12,13,23,.98));
+  border:1px solid rgba(96,165,250,.18);
+  border-radius:16px;padding:14px;
+  box-shadow:0 10px 28px rgba(0,0,0,.18)
+}
+.portal-pago-head{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.portal-pago-icon{
+  width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  background:rgba(96,165,250,.10);border:1px solid rgba(96,165,250,.18);font-size:17px;flex-shrink:0
+}
+.portal-pago-title{font-size:13.5px;font-weight:850;color:#fff}
+.portal-pago-sub{font-size:9.8px;color:rgba(255,255,255,.46);margin-top:2px;line-height:1.35}
+.portal-pago-actions{display:grid;grid-template-columns:1fr;gap:7px}
+.portal-pago-btn{
+  width:100%;min-height:42px;border-radius:11px;padding:9px 11px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid rgba(168,85,247,.22);background:rgba(124,58,237,.10);
+  color:#f4f0ff;font:inherit;font-size:11.5px;font-weight:800;cursor:pointer
+}
+.portal-pago-btn.primary{
+  background:linear-gradient(135deg,#7c3aed,#9333ea);border-color:transparent;color:#fff;
+  box-shadow:0 8px 20px rgba(124,58,237,.22)
+}
+.portal-pago-btn:active{transform:scale(.98)}
+.portal-pago-transfer{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:10px 11px;border-radius:11px;background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.07)
+}
+.portal-pago-transfer>div{min-width:0}
+.portal-pago-transfer span{display:block;font-size:9px;color:var(--text3);margin-bottom:2px}
+.portal-pago-transfer strong{display:block;font-size:12px;color:var(--text);overflow-wrap:anywhere}
+.portal-pago-copy{
+  flex-shrink:0;min-height:34px;padding:6px 9px;border-radius:9px;
+  border:1px solid rgba(168,85,247,.22);background:rgba(124,58,237,.10);
+  color:#d8b4fe;font:inherit;font-size:10px;font-weight:800;cursor:pointer
+}
+.portal-pago-note{font-size:9px;color:rgba(255,255,255,.34);line-height:1.45;margin-top:8px}
 
 /* ── STUDENT DETAIL ──────────────────────────────────── */
 .detail-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:22px}
@@ -28209,8 +28252,23 @@ function guardarPerfilProfesional() {
   perfilProfesional.rolProfesional    = document.getElementById('pp-rol').value;
   perfilProfesional.instagram         = document.getElementById('pp-instagram').value.trim();
   perfilProfesional.whatsapp          = document.getElementById('pp-whatsapp').value.trim();
+
+  // FASE 3 — Medios de cobro del Portal. Son opcionales y viven dentro del
+  // Perfil Profesional, que ya forma parte del backup y del Portal exportado.
+  const aliasEl = document.getElementById('pp-pago-alias');
+  const titularEl = document.getElementById('pp-pago-titular');
+  const linkEl = document.getElementById('pp-pago-link');
+  perfilProfesional.pagoAlias   = aliasEl ? aliasEl.value.trim() : (perfilProfesional.pagoAlias || '');
+  perfilProfesional.pagoTitular = titularEl ? titularEl.value.trim() : (perfilProfesional.pagoTitular || '');
+  perfilProfesional.pagoLink    = linkEl ? linkEl.value.trim() : (perfilProfesional.pagoLink || '');
+
+  if (perfilProfesional.pagoLink && !/^https?:\/\//i.test(perfilProfesional.pagoLink)) {
+    toast('El link de pago debe comenzar con https://', true);
+    return;
+  }
+
   persist();
-  toast('Perfil profesional guardado — ya aparece en tus flyers y PDFs');
+  toast('Perfil profesional guardado');
   renderPerfilProfesional();
 }
 window.guardarPerfilProfesional = guardarPerfilProfesional;
@@ -28282,6 +28340,27 @@ function renderPerfilProfesional() {
         <div class="form-group"><label>Instagram</label><input type="text" id="pp-instagram" value="${p.instagram||''}" placeholder="@usuario"></div>
         <div class="form-group"><label>WhatsApp</label><input type="text" id="pp-whatsapp" value="${p.whatsapp||''}" placeholder="+54 9 11..."></div>
       </div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="section-title">Cobros desde el Portal</div>
+      <p style="font-size:11px;color:var(--text3);line-height:1.55;margin-bottom:12px">Opcional. Si completás un link de pago y/o alias, el alumno verá una opción simple para pagarte desde su Portal. Linares Method no procesa tarjetas ni guarda datos bancarios del alumno.</p>
+      <div class="form-group">
+        <label>Link de pago</label>
+        <input type="text" id="pp-pago-link" value="${p.pagoLink||''}" placeholder="https://...">
+        <div style="font-size:10px;color:var(--text3);margin-top:5px">Puede ser tu link de Mercado Pago u otro link de cobro compatible.</div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Alias para transferencia</label>
+          <input type="text" id="pp-pago-alias" value="${p.pagoAlias||''}" placeholder="Ej: tu.alias">
+        </div>
+        <div class="form-group">
+          <label>Titular / referencia</label>
+          <input type="text" id="pp-pago-titular" value="${p.pagoTitular||''}" placeholder="Ej: Rodrigo Linares">
+        </div>
+      </div>
+      <div style="font-size:10px;color:var(--text3);line-height:1.5">Si dejás ambos métodos vacíos, la opción de pago no aparece en el Portal.</div>
     </div>
 
     <button type="button" class="btn btn-primary" onclick="guardarPerfilProfesional()" style="width:100%;justify-content:center;margin-bottom:18px">Guardar Perfil</button>
@@ -29564,6 +29643,85 @@ function _portalResumenAdherenciaDiaria(alumnoId) {
   </div>`;
 }
 
+
+// ── FASE 3: COBROS DESDE EL PORTAL ─────────────────────────────────────────
+// El Portal sólo muestra esta tarjeta cuando el entrenador configuró al menos
+// un medio de cobro. El pago ocurre fuera de Linares Method.
+function _portalPerfilCobro() {
+  const p = (typeof perfilProfesional !== 'undefined' && perfilProfesional) ? perfilProfesional : {};
+  return {
+    link: String(p.pagoLink || '').trim(),
+    alias: String(p.pagoAlias || '').trim(),
+    titular: String(p.pagoTitular || '').trim()
+  };
+}
+
+function _portalAbrirPagoOnline() {
+  const cobro = _portalPerfilCobro();
+  if (!cobro.link) return;
+  if (!/^https?:\/\//i.test(cobro.link)) return;
+  try { window.open(cobro.link, '_blank', 'noopener,noreferrer'); }
+  catch (_) { window.location.href = cobro.link; }
+}
+window._portalAbrirPagoOnline = _portalAbrirPagoOnline;
+
+async function _portalCopiarAliasPago() {
+  const cobro = _portalPerfilCobro();
+  if (!cobro.alias) return;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(cobro.alias);
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = cobro.alias;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+    if (typeof toast === 'function') toast('Alias copiado');
+    else window.alert('Alias copiado: ' + cobro.alias);
+  } catch (_) {
+    window.prompt('Copiá este alias:', cobro.alias);
+  }
+}
+window._portalCopiarAliasPago = _portalCopiarAliasPago;
+
+function _renderPortalPagoCard() {
+  const cobro = _portalPerfilCobro();
+  if (!cobro.link && !cobro.alias) return '';
+
+  const transferencia = cobro.alias ? `
+    <div class="portal-pago-transfer">
+      <div>
+        <span>Transferencia desde cualquier banco o billetera</span>
+        <strong>${cobro.alias}</strong>
+        ${cobro.titular ? `<span style="margin-top:3px">${cobro.titular}</span>` : ''}
+      </div>
+      <button type="button" class="portal-pago-copy" onclick="_portalCopiarAliasPago()">Copiar alias</button>
+    </div>` : '';
+
+  const pagoOnline = cobro.link ? `
+    <button type="button" class="portal-pago-btn primary" onclick="_portalAbrirPagoOnline()">💳 Pagar online</button>` : '';
+
+  return `<div class="portal-pago-card portal-fade-in">
+    <div class="portal-pago-head">
+      <div class="portal-pago-icon">💳</div>
+      <div>
+        <div class="portal-pago-title">Pago de mensualidad</div>
+        <div class="portal-pago-sub">Elegí el medio que te resulte más cómodo.</div>
+      </div>
+    </div>
+    <div class="portal-pago-actions">
+      ${pagoOnline}
+      ${transferencia}
+    </div>
+    <div class="portal-pago-note">El pago se realiza en tu billetera, banco o proveedor de pagos. Linares Method no recibe datos de tarjeta ni claves.</div>
+  </div>`;
+}
+
 function _renderPortalInicioContenido(alumnoId) {
   const a = alumnos.find(x => x.id === alumnoId);
   if (!a) return '';
@@ -30032,6 +30190,7 @@ function _renderPortalInicioContenido(alumnoId) {
       ${estadoPlanHTML}
       ${!membresiaUrgente ? membresiaHTML : ''}
       ${slotDinamicoHTML}
+      ${_renderPortalPagoCard()}
       ${accesosHTML}
       ${contactoHTML}
     </div></div>`;
@@ -33879,6 +34038,7 @@ const _PORTAL_FUNCIONES_EXPORT = [
   _mismoAlumnoId, seMuestra, _permisoPublicacionHabilitado, _normalizarConfiguracionPublicacionHistorica, obtenerConfiguracionPublicacion, _configuracionPublicacionEstructuraDefault, _crearEstadoPublicacionPortal,
   _portalModeloNavegacion, _renderPortalMas, _validarContenidoPortal, _probarRenderPortalPorPerfil,
   _fechaHumanizada, _saludoDinamico,
+  _portalPerfilCobro, _portalAbrirPagoOnline, _portalCopiarAliasPago, _renderPortalPagoCard,
   _renderPortalRecursoCard,
   _beneficiosParaAlumno, _beneficioTipoInfo, _renderPortalBeneficioCard, _renderPortalBeneficios, solicitarBeneficioWhatsApp,
   getConfiguracionPublicacion, _configuracionPublicacionDefault,

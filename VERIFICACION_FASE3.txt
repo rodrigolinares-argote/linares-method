@@ -1,0 +1,77 @@
+LINARES METHOD — FASE 3: PAGOS DESDE EL PORTAL
+
+BASE
+- index.html de Fase 2, ya con PWA principal y acceso directo del Portal.
+
+OBJETIVO
+Agregar un sistema de cobro simple y seguro dentro del Portal sin procesar pagos dentro de Linares Method.
+
+IMPLEMENTADO
+- Nuevos campos opcionales en Perfil Profesional:
+  · Link de pago.
+  · Alias de transferencia.
+  · Titular / referencia.
+- Validación del link: debe comenzar con http:// o https://.
+- Tarjeta "Pago de mensualidad" en Inicio del Portal.
+- Botón "Pagar online" sólo si existe link configurado.
+- Transferencia desde cualquier banco/billetera sólo si existe alias.
+- Botón "Copiar alias".
+- Si no se configura ningún medio de cobro, la tarjeta NO aparece.
+- Los medios de cobro viajan al Portal exportado mediante perfilProfesional, ya existente.
+- Las nuevas funciones se incluyen en _PORTAL_FUNCIONES_EXPORT para mantener paridad entre vista interna y Portal descargado.
+
+SEGURIDAD / ALCANCE
+- Linares Method no recibe ni procesa números de tarjeta, contraseñas, tokens o claves bancarias.
+- No se inventó ningún link, alias ni dato financiero.
+- El cobro ocurre fuera de Linares Method.
+- No se modificó la estructura de pagos administrativos existente.
+
+NO SE MODIFICÓ
+- Alumnos.
+- Rutinas.
+- Alimentación.
+- Suplementación.
+- Evolución.
+- Gestión administrativa de pagos.
+- PDF.
+- Backup / restauración.
+- IndexedDB / fotos.
+- Persistencia base.
+- PWA principal.
+- Acceso directo del Portal.
+
+CONTROL DE REGRESIÓN ESTÁTICO
+- fase1_preservada: True
+- fase2_preservada: True
+- fase3_presente: True
+- manifest_principal_preservado: True
+- campos_cobro_perfil: True
+- card_pago_portal: True
+- funciones_pago_exportadas: True
+- no_valores_pago_inventados: True
+- conteos_sensibles_iguales: True
+- before_counts: {'function abrirPortalAlumnoInicio': 1, 'function descargarPortalAlumnoHTML': 1, 'function compartirPortalAlumnoHTML': 1, 'function _construirHTMLPortalExportado': 1, 'function persist': 1, '_datosBackupCompletos': 11, 'mobile-pdf-definitive-v12': 1, 'Backup V4': 1, 'IDB photo architecture': 1, 'id="modal-portal-alumno"': 1, 'function _renderPortalInicioContenido': 1}
+- after_counts: {'function abrirPortalAlumnoInicio': 1, 'function descargarPortalAlumnoHTML': 1, 'function compartirPortalAlumnoHTML': 1, 'function _construirHTMLPortalExportado': 1, 'function persist': 1, '_datosBackupCompletos': 11, 'mobile-pdf-definitive-v12': 1, 'Backup V4': 1, 'IDB photo architecture': 1, 'id="modal-portal-alumno"': 1, 'function _renderPortalInicioContenido': 1}
+- input_sha256: 4e2600ffdc5e772ce364bfe22041fe5b7ccdeeb41a53f3006f800f4d1759e648
+- output_sha256: 8375bb500e9670d93eb30d697fdca07fe173f47a0bec7c8dd47c39ef241f3781
+- script_open_before: 0
+- script_open_after: 0
+- script_close_before: 4
+- script_close_after: 4
+- style_open_before: 0
+- style_open_after: 0
+- style_close_before: 47
+- style_close_after: 47
+
+PRUEBA MANUAL ANTES DE NETLIFY
+1. Abrir Más → Perfil Profesional.
+2. Confirmar que aparece "Cobros desde el Portal".
+3. Probar primero dejando link y alias vacíos; guardar.
+4. Abrir Portal de un alumno: NO debe aparecer "Pago de mensualidad".
+5. Volver a Perfil Profesional y cargar TU link real y/o TU alias.
+6. Guardar y abrir nuevamente Portal: debe aparecer la tarjeta de pago.
+7. Probar "Copiar alias".
+8. Probar "Pagar online" y verificar que abre TU link en otra pestaña.
+9. Descargar el Portal del alumno y repetir las pruebas en el HTML exportado.
+10. Verificar Inicio, Entreno, Comidas, Suplementación, Aprendé y Evolución.
+11. Verificar PDF y Backup.
