@@ -4,6 +4,7 @@
 <!-- LM_PHASE: portal-payments-v3-2026-08-10 -->
 <!-- LM_PHASE: portal-payments-premium-v3.2-2026-08-10 -->
 <!-- LM_PHASE: definitive-icons-v3.3-2026-08-11 -->
+<!-- LM_PHASE: payment-receipt-whatsapp-v3.4-2026-08-11 -->
 <!-- LM_BUILD: adaptive-states-v30-2026-07-25
 
 <!-- Linares Method | Visual Rebuild V3 + IDB photo architecture | 2026-07-24 -->
@@ -519,6 +520,28 @@ body.lm-modal-open{
   font-size:8.9px;color:rgba(255,255,255,.33);line-height:1.45;margin-top:9px;
   padding-top:8px;border-top:1px solid rgba(255,255,255,.05)
 }
+
+.portal-pago-receipt{
+  margin-top:10px;padding:11px 12px;border-radius:13px;
+  background:rgba(34,197,94,.055);border:1px solid rgba(34,197,94,.16)
+}
+.portal-pago-receipt-title{
+  display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:900;color:#dcfce7
+}
+.portal-pago-receipt-title svg{width:15px;height:15px;color:#86efac}
+.portal-pago-receipt-text{
+  margin-top:5px;font-size:9.4px;line-height:1.45;color:rgba(255,255,255,.50)
+}
+.portal-pago-receipt-text strong{color:#fff}
+.portal-pago-wa-btn{
+  width:100%;min-height:41px;margin-top:9px;border-radius:11px;padding:9px 11px;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  border:1px solid rgba(34,197,94,.22);background:rgba(34,197,94,.10);
+  color:#bbf7d0;font:inherit;font-size:10.8px;font-weight:900;cursor:pointer
+}
+.portal-pago-wa-btn svg{width:15px;height:15px}
+.portal-pago-wa-btn:active{transform:scale(.98)}
+
 .portal-pago-paid{
   padding:11px 12px;border-radius:12px;background:rgba(34,197,94,.07);
   border:1px solid rgba(34,197,94,.16)
@@ -29844,6 +29867,37 @@ function _portalCopiarCVUPago(){ return _portalCopiarDatoPago(_portalPerfilCobro
 window._portalCopiarAliasPago = _portalCopiarAliasPago;
 window._portalCopiarCVUPago = _portalCopiarCVUPago;
 
+
+function _portalNumeroWhatsAppEntrenador() {
+  const p = (typeof perfilProfesional !== 'undefined' && perfilProfesional) ? perfilProfesional : {};
+  return String(p.whatsapp || '').replace(/[^0-9]/g,'');
+}
+
+function _portalMensajeComprobantePago() {
+  return 'Hola Rodrigo, ya realicé el pago del abono del mes. Adjunto el comprobante de pago para que puedas verificarlo y registrarlo.';
+}
+
+function _portalEnviarComprobanteWhatsApp() {
+  const numero = _portalNumeroWhatsAppEntrenador();
+  const mensaje = _portalMensajeComprobantePago();
+
+  if (!numero) {
+    if (typeof toast === 'function') {
+      toast('Primero cargá tu WhatsApp en Perfil Profesional', true);
+    } else {
+      window.alert('No hay un número de WhatsApp configurado.');
+    }
+    return;
+  }
+
+  const url = 'https://wa.me/' + numero + '?text=' + encodeURIComponent(mensaje);
+  try { window.open(url, '_blank', 'noopener,noreferrer'); }
+  catch (_) { window.location.href = url; }
+}
+window._portalNumeroWhatsAppEntrenador = _portalNumeroWhatsAppEntrenador;
+window._portalMensajeComprobantePago = _portalMensajeComprobantePago;
+window._portalEnviarComprobanteWhatsApp = _portalEnviarComprobanteWhatsApp;
+
 function _renderPortalPagoCard(alumnoId) {
   const cobro = _portalPerfilCobro();
   const m = _normalizarMembresia(alumnoId);
@@ -29911,13 +29965,27 @@ function _renderPortalPagoCard(alumnoId) {
   return `<div class="portal-pago-card ${estadoClass} portal-fade-in">
     <div class="portal-pago-head">
       <div class="portal-pago-title-wrap"><div class="portal-pago-icon">${iconCard}</div><div>
-        <div class="portal-pago-title">Pagar mensualidad</div>
+        <div class="portal-pago-title">Pago del abono</div>
         <div class="portal-pago-sub">${fechaVenc ? 'Tu fecha de vencimiento es ' + fechaVenc + '.' : 'Elegí la opción que prefieras.'}</div>
       </div></div>
       <div class="portal-pago-status ${badgeClass}">${badgeTexto}</div>
     </div>
     ${importeBase ? `<div class="portal-pago-amount"><div><span>Importe de la cuota</span><strong>${_portalFormatoDinero(importeBase)}</strong></div><div class="portal-pago-due">${m.diasTexto || ''}</div></div>` : ''}
     <div class="portal-pago-options">${transferenciaHTML}${mpHTML}</div>
+    <div class="portal-pago-receipt">
+      <div class="portal-pago-receipt-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 3h10a2 2 0 0 1 2 2v14l-3-2-2 2-2-2-2 2-2-2-3 2V5a2 2 0 0 1 2-2z"/><path d="M9 8h6M9 12h6"/></svg>
+        ¿Ya realizaste el pago?
+      </div>
+      <div class="portal-pago-receipt-text">
+        Para que pueda registrarlo, <strong>tenés que enviar el comprobante por WhatsApp.</strong>
+        Antes de enviar el mensaje, recordá adjuntar la foto o el archivo del comprobante de pago.
+      </div>
+      <button type="button" class="portal-pago-wa-btn" onclick="_portalEnviarComprobanteWhatsApp()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 11.5a8 8 0 0 1-11.8 7L4 20l1.5-4A8 8 0 1 1 20 11.5z"/><path d="M8.5 9.5c.4 2 2 3.6 4 4"/></svg>
+        Enviar comprobante por WhatsApp
+      </button>
+    </div>
     <div class="portal-pago-note">La transferencia no tiene recargo. Mercado Pago informa su costo antes de continuar. El pago no cambia tu fecha de vencimiento.</div>
   </div>`;
 }
@@ -34239,7 +34307,8 @@ const _PORTAL_FUNCIONES_EXPORT = [
   _portalModeloNavegacion, _renderPortalMas, _validarContenidoPortal, _probarRenderPortalPorPerfil,
   _fechaHumanizada, _saludoDinamico,
   _portalPerfilCobro, _portalPagosAlumno, _portalPagoReferencia, _portalMontoNumero, _portalFormatoDinero, _portalTotalMercadoPago,
-  _portalAbrirPagoOnline, _portalCopiarDatoPago, _portalCopiarAliasPago, _portalCopiarCVUPago, _renderPortalPagoCard,
+  _portalAbrirPagoOnline, _portalCopiarDatoPago, _portalCopiarAliasPago, _portalCopiarCVUPago,
+  _portalNumeroWhatsAppEntrenador, _portalMensajeComprobantePago, _portalEnviarComprobanteWhatsApp, _renderPortalPagoCard,
   _renderPortalRecursoCard,
   _beneficiosParaAlumno, _beneficioTipoInfo, _renderPortalBeneficioCard, _renderPortalBeneficios, solicitarBeneficioWhatsApp,
   getConfiguracionPublicacion, _configuracionPublicacionDefault,
